@@ -11,7 +11,13 @@ const port = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "..", "public")));
+const publicPath = path.join(__dirname, "..", "public");
+
+app.use(express.static(publicPath));
+
+app.get(["/", "/index.html"], (req: Request, res: Response) => {
+  res.sendFile(path.join(publicPath, "index.html"));
+});
 
 // Health check
 app.get("/health", (req: Request, res: Response) => {
