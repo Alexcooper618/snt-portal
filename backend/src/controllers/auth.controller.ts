@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../db";
+import { Prisma } from "@prisma/client";
 import jwt from "jsonwebtoken";
 
 export const registerSnt = async (req: Request, res: Response) => {
@@ -30,8 +31,15 @@ export const registerSnt = async (req: Request, res: Response) => {
     );
 
     res.json({ snt, token });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error(err);
+    if (err instanceof Prisma.PrismaClientKnownRequestError) {
+      if (err.code === "P2002") {
+        return res
+          .status(409)
+          .json({ error: "User with this phone already exists" });
+      }
+    }
     res.status(500).json({ error: "Unable to register SNT" });
   }
 };
